@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-jwt": "^8.5.1",
+    "joi": "^17.13.3",
+    "mongoose": "^8.14.2",
+    "nodemailer": "^7.0.3",
+    "normalize-mongoose": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "name": "sign-natural",
+  "version": "1.0.0",
+  "description": "a natural wellness learning and commerce webapp",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --env-file=.env .",
+    "start": "node ."
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "type": "module"
+}
