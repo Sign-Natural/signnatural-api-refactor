@@ -58,7 +58,9 @@
 
     "nodemon": "^3.1.10",
 
-    "normalize-mongoose": "^1.0.0"
+    "normalize-mongoose": "^1.0.0",
+
+    "streamifier": "^0.1.1"
 
   }
 

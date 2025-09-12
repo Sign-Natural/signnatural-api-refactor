@@ -1,11 +1,13 @@
+// src/models/Testimonial.js
 import mongoose from 'mongoose';
 
 const TestimonialSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   text: { type: String, required: true },
-  image: String,
+  imageUrl: { type: String },       // secure url from cloudinary
+  imagePublicId: { type: String },  // cloudinary public_id for deletion
   approved: { type: Boolean, default: false },
-  tag: String
+  tag: { type: String },
 }, { timestamps: true });
 
 export default mongoose.model('Testimonial', TestimonialSchema);

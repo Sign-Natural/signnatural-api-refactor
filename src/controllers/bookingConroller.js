@@ -1,3 +1,4 @@
+//src/controllers/bookingController.js
 import asyncHandler from 'express-async-handler';
 import Booking from '../models/Booking.js';
 
