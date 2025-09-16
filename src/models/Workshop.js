@@ -5,7 +5,8 @@ const WorkshopSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   type: { type: String, enum: ['celebration', 'diasporan', 'group', 'other'], default: 'group' },
-  image: String,
+  image: { type: String, default: null },           // secure url
+  imagePublicId: { type: String, default: null },   // cloudinary public_id
   price: { type: Number, default: 0 },
   duration: String,
   location: String,

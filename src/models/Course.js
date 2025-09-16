@@ -1,11 +1,12 @@
-//src/models/Course.js
+// src/models/Course.js
 import mongoose from 'mongoose';
 
 const CourseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   type: { type: String, enum: ['free', 'online', 'in-person', 'in-demand'], default: 'free' },
-  image: String,
+  image: { type: String, default: null },            // secure url (Cloudinary or other)
+  imagePublicId: { type: String, default: null },    // cloudinary public_id for deletion
   price: { type: Number, default: 0 },
   duration: String,
   category: String,

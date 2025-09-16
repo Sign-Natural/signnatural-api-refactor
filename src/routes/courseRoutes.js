@@ -15,11 +15,10 @@ import { upload } from '../middlewares/uploads.js';
 
 const router = express.Router();
 
-// Public
 router.get('/', getCourses);
 router.get('/:id', getCourse);
 
-// Admin-only (with validation). Accept multipart/form-data with field 'image'
+// Admin-only operations with validation. upload.single BEFORE validate.
 router.post('/', protect, requireAdmin, upload.single('image'), validate(createCourseSchema), createCourse);
 router.put('/:id', protect, requireAdmin, upload.single('image'), validate(updateCourseSchema), updateCourse);
 router.delete('/:id', protect, requireAdmin, deleteCourse);
