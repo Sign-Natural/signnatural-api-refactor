@@ -1,6 +1,5 @@
-//sign-natural-api/index.js
+// sign-natural-api/index.js
 import 'dotenv/config';
-
 
 import express from 'express';
 import cors from 'cors';
@@ -63,21 +62,22 @@ async function start() {
     }
 
     // 3) Bootstrap initial admin (only after DB connected)
-    try {
-      const existingAdmin = await User.findOne({ role: 'admin' }).lean();
-      if (!existingAdmin && process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
-        const u = new User({
-          name: process.env.ADMIN_NAME || 'Admin',
-          email: process.env.ADMIN_EMAIL,
-          password: process.env.ADMIN_PASSWORD,
-          role: 'admin',
-        });
-        await u.save();
-        console.log('Bootstrapped initial admin:', u.email);
-      }
-    } catch (err) {
-      console.error('Bootstrap admin error:', err);
-    }
+    // try {
+    //   const existingAdmin = await User.findOne({ role: 'admin' }).lean();
+    //   if (!existingAdmin && process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+    //     const u = new User({
+    //       name: process.env.ADMIN_NAME || 'Admin',
+    //       email: process.env.ADMIN_EMAIL,
+    //       password: process.env.ADMIN_PASSWORD,
+    //       role: 'admin',
+    //       emailVerified: true   // <-- permanent fix: mark bootstrap admin as verified
+    //     });
+    //     await u.save();
+    //     console.log('Bootstrapped initial admin:', u.email);
+    //   }
+    // } catch (err) {
+    //   console.error('Bootstrap admin error:', err);
+    // }
 
     // 4) Start server
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

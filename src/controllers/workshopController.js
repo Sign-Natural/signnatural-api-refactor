@@ -74,8 +74,10 @@ const deleteWorkshop = asyncHandler(async (req, res) => {
     try { await deleteFromCloudinary(ws.imagePublicId); } catch (err) { console.error('Cloudinary delete failed (deleteWorkshop):', err.message || err); }
   }
 
-  await ws.remove();
-  res.json({ ok: true });
+ // Document-level deletion (safe and supported)
+  await ws.deleteOne();
+
+  res.json({ ok: true, message: 'workshop deleted' });
 });
 
 export { createWorkshop, getWorkshops, getWorkshop, updateWorkshop, deleteWorkshop };

@@ -9,6 +9,7 @@ const CourseSchema = new mongoose.Schema({
   imagePublicId: { type: String, default: null },    // cloudinary public_id for deletion
   price: { type: Number, default: 0 },
   duration: String,
+  location: String,
   category: String,
   instructor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   published: { type: Boolean, default: true },

@@ -96,13 +96,20 @@ const deleteCourse = asyncHandler(async (req, res) => {
     throw new Error('Course not found');
   }
 
-  // Attempt to delete image from Cloudinary if stored
+  // If there is an imagePublicId stored, try to remove the Cloudinary asset first.
   if (course.imagePublicId) {
-    try { await deleteFromCloudinary(course.imagePublicId); } catch (err) { console.error('Cloudinary delete failed (deleteCourse):', err.message || err); }
+    try {
+      await deleteFromCloudinary(course.imagePublicId);
+    } catch (err) {
+      // Log but continue — we still delete the DB record to keep things consistent.
+      console.error('Cloudinary delete failed (deleteCourse):', err.message || err);
+    }
   }
 
-  await course.remove();
-  res.json({ ok: true });
+  // Document-level deletion (safe and supported)
+  await course.deleteOne();
+
+  res.json({ ok: true, message: 'Course deleted' });
 });
 
 export { createCourse, getCourses, getCourse, updateCourse, deleteCourse };
