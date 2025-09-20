@@ -28,8 +28,27 @@ const getAllBookings = asyncHandler(async (req, res) => {
 });
 
 const updateBookingStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
-  const booking = await Booking.findByIdAndUpdate(req.params.id, { status }, { new: true });
+  // defensive read
+  const status = req.body?.status;
+  if (!status) {
+    res.status(400);
+    throw new Error('status is required in request body');
+  }
+
+  const allowed = ['pending', 'confirmed', 'cancelled', 'completed'];
+  if (!allowed.includes(status)) {
+    res.status(400);
+    throw new Error(`Invalid status. Allowed: ${allowed.join(', ')}`);
+  }
+
+  const booking = await Booking.findById(req.params.id);
+  if (!booking) {
+    res.status(404);
+    throw new Error('Booking not found');
+  }
+
+  booking.status = status;
+  await booking.save(); // triggers hooks and returns updated doc
   res.json(booking);
 });
 

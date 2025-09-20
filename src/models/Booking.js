@@ -1,11 +1,16 @@
-//src/models/Booking.js
-
+// src/models/Booking.js
 import mongoose from 'mongoose';
 
 const BookingSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  itemType: { type: String, enum: ['course', 'workshop', 'product'], required: true },
+
+  // IMPORTANT: these must match the Mongoose model names you registered
+  // e.g. mongoose.model('Course', CourseSchema)
+  itemType: { type: String, enum: ['Course', 'Workshop', 'Product'], required: true },
+
+  // refPath points to itemType and Mongoose uses that string to find the model
   item: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'itemType' },
+
   price: { type: Number, default: 0 },
   status: { type: String, enum: ['pending', 'confirmed', 'cancelled', 'completed'], default: 'pending' },
   payment: {
@@ -18,5 +23,7 @@ const BookingSchema = new mongoose.Schema({
   scheduledAt: { type: Date },
   meta: { type: Object }
 }, { timestamps: true });
+
+
 
 export default mongoose.model('Booking', BookingSchema);

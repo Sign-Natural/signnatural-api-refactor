@@ -5,11 +5,11 @@ import {
   getMyBookings,
   getAllBookings,
   updateBookingStatus
-} from '../controllers/bookingConroller.js'; // fixed import
+} from '../controllers/bookingConroller.js';
 
 import { protect, requireAdmin } from '../middlewares/authMiddleware.js';
 import validate from '../middlewares/validate.js';
-import { createBookingSchema } from '../validators/bookingSchemas.js';
+import { createBookingSchema, updateBookingStatusSchema} from '../validators/bookingSchemas.js';
 
 const router = express.Router();
 
@@ -22,7 +22,6 @@ router.get('/me', protect, getMyBookings);
 // Admin routes
 router.get('/', protect, requireAdmin, getAllBookings);
 
-// Update booking status (admin). If you want validation for status, add a schema.
-router.put('/:id/status', protect, requireAdmin, updateBookingStatus);
+router.put('/:id/status', protect, requireAdmin, validate(updateBookingStatusSchema), updateBookingStatus);
 
 export default router;
