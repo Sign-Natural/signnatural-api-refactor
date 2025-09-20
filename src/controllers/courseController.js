@@ -1,5 +1,4 @@
 
-
 // src/controllers/courseController.js
 import asyncHandler from 'express-async-handler';
 import Course from '../models/Course.js';
