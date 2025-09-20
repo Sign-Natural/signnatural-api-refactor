@@ -1,4 +1,4 @@
-// src/models/Workshop.js
+
 import mongoose from 'mongoose';
 
 const WorkshopSchema = new mongoose.Schema({

@@ -1,4 +1,4 @@
-// src/controllers/workshopController.js
+
 import asyncHandler from 'express-async-handler';
 import Workshop from '../models/Workshop.js';
 import { uploadBufferToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
