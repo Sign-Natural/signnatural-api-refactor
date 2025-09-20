@@ -17,7 +17,6 @@ import testimonialRoutes from './src/routes/testimonialRoutes.js';
 import productRoutes from './src/routes/productRoutes.js';
 
 import { notFound, errorHandler } from './src/middlewares/errorMiddleware.js';
-import User from './src/models/User.js';
 import { verifyTransporter } from './src/utils/email.js'; // optional: verify SMTP
 
 const app = express();
@@ -61,23 +60,7 @@ async function start() {
       console.warn('SMTP verify threw:', err && err.message ? err.message : err);
     }
 
-    // 3) Bootstrap initial admin (only after DB connected)
-    // try {
-    //   const existingAdmin = await User.findOne({ role: 'admin' }).lean();
-    //   if (!existingAdmin && process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
-    //     const u = new User({
-    //       name: process.env.ADMIN_NAME || 'Admin',
-    //       email: process.env.ADMIN_EMAIL,
-    //       password: process.env.ADMIN_PASSWORD,
-    //       role: 'admin',
-    //       emailVerified: true   // <-- permanent fix: mark bootstrap admin as verified
-    //     });
-    //     await u.save();
-    //     console.log('Bootstrapped initial admin:', u.email);
-    //   }
-    // } catch (err) {
-    //   console.error('Bootstrap admin error:', err);
-    // }
+  
 
     // 4) Start server
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
