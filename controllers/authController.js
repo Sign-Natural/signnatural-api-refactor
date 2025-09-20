@@ -1,9 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
-import User from '../models/User.js';
 import Otp from '../models/Otp.js';
 import generateToken from '../utils/generateToken.js';
 import { sendOtpEmail } from '../utils/email.js';
+import User from '../models/User.js';
 
 const OTP_EXPIRES_MIN = Number(process.env.OTP_EXPIRES_MINUTES) || 10;
 

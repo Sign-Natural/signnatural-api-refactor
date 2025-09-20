@@ -7,17 +7,17 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
-import connectDB from './src/config/db.js';
+import connectDB from './config/db.js';
 
-import authRoutes from './src/routes/authRoutes.js';
-import courseRoutes from './src/routes/courseRoutes.js';
-import workshopRoutes from './src/routes/workshopRoutes.js';
-import bookingRoutes from './src/routes/bookingRoutes.js';
-import testimonialRoutes from './src/routes/testimonialRoutes.js';
-import productRoutes from './src/routes/productRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import workshopRoutes from './routes/workshopRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
+import testimonialRoutes from './routes/testimonialRoutes.js';
+import productRoutes from './routes/productRoutes.js';
 
-import { notFound, errorHandler } from './src/middlewares/errorMiddleware.js';
-import { verifyTransporter } from './src/utils/email.js'; // optional: verify SMTP
+import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
+import { verifyTransporter } from './utils/email.js'; // optional: verify SMTP
 
 const app = express();
 
