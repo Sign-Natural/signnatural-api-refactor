@@ -29,6 +29,25 @@ if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,                // e.g. https://your-site.netlify.app (set in env)
+  'http://localhost:5173',                 // Vite default
+  'http://localhost:3000',                 // CRA or other local dev
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests (e.g. cURL, mobile) which have no origin
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS policy: origin ${origin} not allowed`));
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
 // API routes (mount before or after DB connect — mounting is independent)
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
