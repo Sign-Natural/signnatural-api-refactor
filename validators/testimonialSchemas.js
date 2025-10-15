@@ -1,4 +1,4 @@
-// src/validators/testimonialSchemas.js
+// validators/testimonialSchemas.js
 import Joi from 'joi';
 
 export const createTestimonialSchema = Joi.object({

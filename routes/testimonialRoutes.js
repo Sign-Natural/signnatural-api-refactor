@@ -1,4 +1,4 @@
-//src/routes/testimonialRoutes.js
+//routes/testimonialRoutes.js
 import express from 'express';
 import {
   createTestimonial,

@@ -1,4 +1,4 @@
-// src/models/Testimonial.js
+// models/Testimonial.js
 import mongoose from 'mongoose';
 
 const TestimonialSchema = new mongoose.Schema({

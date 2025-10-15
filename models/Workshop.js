@@ -1,3 +1,4 @@
+// models/Workshop.js
 
 import mongoose from 'mongoose';
 

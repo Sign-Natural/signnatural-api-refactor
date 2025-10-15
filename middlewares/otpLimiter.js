@@ -1,4 +1,4 @@
-// src/middlewares/otpLimiter.js
+// middlewares/otpLimiter.js
 import rateLimit from 'express-rate-limit';
 
 const otpLimiter = rateLimit({

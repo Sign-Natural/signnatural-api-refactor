@@ -1,5 +1,5 @@
 
-// src/controllers/courseController.js
+// controllers/courseController.js
 import asyncHandler from 'express-async-handler';
 import Course from '../models/Course.js';
 import { uploadBufferToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';

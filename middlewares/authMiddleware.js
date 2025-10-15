@@ -1,3 +1,4 @@
+//middlewares/authMiddleware.js
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';

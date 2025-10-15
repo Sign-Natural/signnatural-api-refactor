@@ -1,4 +1,4 @@
-// src/validators/courseSchemas.js
+// validators/courseSchemas.js
 import Joi from 'joi';
 
 export const createCourseSchema = Joi.object({

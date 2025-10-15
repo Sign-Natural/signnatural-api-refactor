@@ -1,4 +1,4 @@
-// src/routes/productRoutes.js
+// routes/productRoutes.js
 import express from 'express';
 import { createProduct, getProducts } from '../controllers/productController.js';
 import { protect, requireAdmin } from '../middlewares/authMiddleware.js';

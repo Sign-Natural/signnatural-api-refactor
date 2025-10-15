@@ -1,11 +1,11 @@
-// src/routes/bookingRoutes.js
+// routes/bookingRoutes.js
 import express from 'express';
 import {
   createBooking,
   getMyBookings,
   getAllBookings,
   updateBookingStatus
-} from '../controllers/bookingConroller.js';
+} from '../controllers/bookingController.js';
 
 import { protect, requireAdmin } from '../middlewares/authMiddleware.js';
 import validate from '../middlewares/validate.js';

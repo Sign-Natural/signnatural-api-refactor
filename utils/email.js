@@ -1,4 +1,4 @@
-// src/utils/email.js
+// utils/email.js
 import nodemailer from 'nodemailer';
 
 let transporter = null;

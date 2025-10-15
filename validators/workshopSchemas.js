@@ -1,4 +1,4 @@
-// src/validators/workshopSchemas.js
+// validators/workshopSchemas.js
 import Joi from 'joi';
 
 export const createWorkshopSchema = Joi.object({

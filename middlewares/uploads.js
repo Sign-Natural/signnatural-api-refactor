@@ -1,4 +1,4 @@
-// src/middlewares/uploads.js
+// middlewares/uploads.js
 import multer from 'multer';
 
 const MAX_FILE_SIZE = process.env.MAX_UPLOAD_SIZE

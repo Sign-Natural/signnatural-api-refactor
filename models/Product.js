@@ -1,4 +1,4 @@
-// src/models/Product.js
+// models/Product.js
 import mongoose from 'mongoose';
 
 const ProductSchema = new mongoose.Schema({

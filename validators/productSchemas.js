@@ -1,4 +1,4 @@
-// src/validators/productSchemas.js
+// validators/productSchemas.js
 import Joi from 'joi';
 
 export const createProductSchema = Joi.object({

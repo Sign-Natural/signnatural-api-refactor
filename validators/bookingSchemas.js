@@ -1,4 +1,4 @@
-// src/validators/bookingSchemas.js
+// validators/bookingSchemas.js
 import Joi from 'joi';
 
 export const createBookingSchema = Joi.object({

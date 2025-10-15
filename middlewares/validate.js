@@ -1,4 +1,4 @@
-// src/middlewares/validate.js
+// middlewares/validate.js
 export default function validate(schema) {
   return (req, res, next) => {
     const data = req.method === 'GET' ? req.query : req.body;

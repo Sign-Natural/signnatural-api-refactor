@@ -1,3 +1,4 @@
+//controllers/authController.js
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
 import Otp from '../models/Otp.js';

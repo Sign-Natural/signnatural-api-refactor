@@ -1,3 +1,4 @@
+//controllers/workshopController.js
 
 import asyncHandler from 'express-async-handler';
 import Workshop from '../models/Workshop.js';

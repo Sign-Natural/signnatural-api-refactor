@@ -1,4 +1,4 @@
-// src/validators/authSchemas.js
+// validators/authSchemas.js
 import Joi from 'joi';
 
 export const registerSchema = Joi.object({

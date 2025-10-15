@@ -1,4 +1,4 @@
-// src/routes/workshopRoutes.js
+// routes/workshopRoutes.js
 import express from 'express';
 import {
   createWorkshop,
