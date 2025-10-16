@@ -17,30 +17,37 @@ import testimonialRoutes from './routes/testimonialRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 
 import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
-import { verifyTransporter } from './utils/email.js'; // optional: verify SMTP
+import { verifyTransporter } from './utils/email.js';
 
 const app = express();
 
+/** Behind a proxy on Render: trust X-Forwarded-* */
+app.set('trust proxy', 1);
+
+/** Security & body parsing */
 app.use(helmet());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
+/** Logging */
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
 
+/** CORS (single, centralized setup) */
 const allowedOrigins = [
-  process.env.FRONTEND_URL,                // e.g. https://your-site.netlify.app (set in env)
-  'http://localhost:5173',                 // Vite default
-  'http://localhost:3000',                 // CRA or other local dev
+  process.env.FRONTEND_URL,      // e.g. https://your-site.netlify.app
+  'http://localhost:5173',       // Vite dev
+  'http://localhost:3000',       // CRA/other dev
 ].filter(Boolean);
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow non-browser requests (e.g. cURL, mobile) which have no origin
+  origin(origin, callback) {
+    // Allow non-browser clients (no Origin header)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    // Soft-fail with a CORS error (shows as 200 on OPTIONS preflight)
+    return callback(new Error(`CORS policy: origin ${origin} not allowed`));
   },
   credentials: true,
   optionsSuccessStatus: 200,
@@ -48,7 +55,16 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// API routes (mount before or after DB connect — mounting is independent)
+/** Rate limiting (after trust proxy so req.ip is correct) */
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+/** Routes */
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/workshops', workshopRoutes);
@@ -56,10 +72,12 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/products', productRoutes);
 
-// health
-app.get('/api/health', (req, res) => res.json({ ok: true, now: Date.now() }));
+/** Health check */
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, now: Date.now(), ip: req.ip });
+});
 
-// 404 + error middleware (must be after routes)
+/** 404 + error handlers (must be last) */
 app.use(notFound);
 app.use(errorHandler);
 
@@ -67,24 +85,20 @@ const PORT = process.env.PORT || 5000;
 
 async function start() {
   try {
-    // 1) Connect DB and wait
     await connectDB();
     console.log('MongoDB connected');
 
-    // 2) Verify SMTP transporter (non-blocking if verifyTransporter returns false)
+    // Non-blocking SMTP verification
     try {
       const smtpOk = await verifyTransporter();
       if (!smtpOk) console.warn('Warning: SMTP verify failed. OTP/email may not send.');
     } catch (err) {
-      console.warn('SMTP verify threw:', err && err.message ? err.message : err);
+      console.warn('SMTP verify threw:', err?.message || err);
     }
 
-  
-
-    // 4) Start server
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (err) {
-    console.error('Failed to start server:', err && err.message ? err.message : err);
+    console.error('Failed to start server:', err?.message || err);
     process.exit(1);
   }
 }
