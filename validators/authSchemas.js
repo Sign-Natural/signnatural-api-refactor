@@ -46,3 +46,7 @@ export const createAdminSchema = Joi.object({
     .required(),
   password: Joi.string().min(8).required(),
 });
+
+export const googleLoginSchema = Joi.object({
+  credential: Joi.string().required(), // the JWT from Google Identity Services
+});

@@ -135,61 +135,66 @@ const getMe = asyncHandler(async (req, res) => {
 
 export { registerUser, verifyEmail, resendOtp, loginUser, createAdmin, getMe };
 
-export const googleAuth = async (req, res) => {
-  try {
-    const { credential } = req.body; // ID token from Google
-    if (!credential) {
-      return res.status(400).json({ message: 'Missing Google credential' });
-    }
+// Google Sign-In (register or login)
+export const googleSignIn = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) {
+    res.status(400);
+    throw new Error('Missing Google credential');
+  }
 
-    const ticket = await googleClient.verifyIdToken({
+  let ticket;
+  try {
+    ticket = await googleClient.verifyIdToken({
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-    const payload = ticket.getPayload();
-
-    const { sub: googleId, email, name, picture } = payload || {};
-    if (!email) {
-      return res.status(400).json({ message: 'Google account has no email' });
-    }
-
-    // Find existing by email
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      // Create user (emailVerified true since Google verified it)
-      user = await User.create({
-        name: name || email.split('@')[0],
-        email,
-        password: Math.random().toString(36).slice(2) + Date.now(), // dummy (won’t be used)
-        role: 'user',
-        emailVerified: true,
-        avatar: picture,
-        provider: 'google',
-        googleId,
-      });
-    } else {
-      // If exists, optionally attach googleId/provider for future logins
-      if (!user.googleId) user.googleId = googleId;
-      if (user.provider !== 'google') user.provider = 'google';
-      if (!user.emailVerified) user.emailVerified = true;
-      await user.save();
-    }
-
-    const token = generateToken(user._id, user.role);
-    res.json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        emailVerified: user.emailVerified,
-        avatar: user.avatar,
-      },
-    });
-  } catch (err) {
-    console.error('googleAuth error:', err?.message || err);
-    res.status(401).json({ message: 'Google sign-in failed' });
+  } catch (e) {
+    res.status(401);
+    throw new Error('Invalid Google token');
   }
-};
+
+  const payload = ticket.getPayload();
+  const { email, name, picture, email_verified, sub } = payload || {};
+
+  if (!email || !email_verified) {
+    res.status(400);
+    throw new Error('Google account email not verified');
+  }
+
+  // Either find user or create one (password is required by your schema)
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    // create a random password (never used by the user)
+    const randomPwd = await bcrypt.hash(sub + Date.now().toString(), 10);
+    user = await User.create({
+      name: name || email.split('@')[0],
+      email,
+      password: randomPwd,           // required by your current schema
+      role: 'user',
+      emailVerified: true,           // Google verified
+      avatar: picture || undefined,  // optional
+    });
+  } else if (!user.emailVerified) {
+    // trust Google verification
+    user.emailVerified = true;
+    // optionally update avatar/name once
+    if (picture && !user.avatar) user.avatar = picture;
+    if (name && !user.name) user.name = name;
+    await user.save();
+  }
+
+  const token = generateToken(user._id, user.role);
+  res.json({
+    token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      emailVerified: user.emailVerified,
+      avatar: user.avatar || null,
+    },
+  });
+});
