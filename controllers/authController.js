@@ -5,6 +5,9 @@ import Otp from '../models/Otp.js';
 import generateToken from '../utils/generateToken.js';
 import { sendOtpEmail } from '../utils/email.js';
 import User from '../models/User.js';
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const OTP_EXPIRES_MIN = Number(process.env.OTP_EXPIRES_MINUTES) || 10;
 
@@ -131,3 +134,62 @@ const getMe = asyncHandler(async (req, res) => {
 });
 
 export { registerUser, verifyEmail, resendOtp, loginUser, createAdmin, getMe };
+
+export const googleAuth = async (req, res) => {
+  try {
+    const { credential } = req.body; // ID token from Google
+    if (!credential) {
+      return res.status(400).json({ message: 'Missing Google credential' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    const { sub: googleId, email, name, picture } = payload || {};
+    if (!email) {
+      return res.status(400).json({ message: 'Google account has no email' });
+    }
+
+    // Find existing by email
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create user (emailVerified true since Google verified it)
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        password: Math.random().toString(36).slice(2) + Date.now(), // dummy (won’t be used)
+        role: 'user',
+        emailVerified: true,
+        avatar: picture,
+        provider: 'google',
+        googleId,
+      });
+    } else {
+      // If exists, optionally attach googleId/provider for future logins
+      if (!user.googleId) user.googleId = googleId;
+      if (user.provider !== 'google') user.provider = 'google';
+      if (!user.emailVerified) user.emailVerified = true;
+      await user.save();
+    }
+
+    const token = generateToken(user._id, user.role);
+    res.json({
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        emailVerified: user.emailVerified,
+        avatar: user.avatar,
+      },
+    });
+  } catch (err) {
+    console.error('googleAuth error:', err?.message || err);
+    res.status(401).json({ message: 'Google sign-in failed' });
+  }
+};

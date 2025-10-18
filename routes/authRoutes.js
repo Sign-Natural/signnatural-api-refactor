@@ -19,6 +19,7 @@ import {
   loginSchema,
   createAdminSchema
 } from '../validators/authSchemas.js';  // <-- plural here
+import { googleAuth } from '../controllers/authController.js';
 
 const router = express.Router();
 
@@ -27,6 +28,7 @@ router.post('/register', validate(registerSchema), registerUser);
 router.post('/verify-email', validate(verifyEmailSchema), verifyEmail);
 router.post('/resend-otp', otpLimiter, validate(resendOtpSchema), resendOtp);
 router.post('/login', validate(loginSchema), loginUser);
+router.post('/google', googleAuth);
 
 // Protected
 router.get('/me', protect, getMe);
