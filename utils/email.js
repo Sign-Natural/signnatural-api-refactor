@@ -6,37 +6,59 @@ let transporter = null;
 function createTransporter() {
   if (transporter) return transporter;
 
-  const host = process.env.SMTP_HOST || '';
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = Number(process.env.SMTP_PORT) || 587;
-  const secure = String(process.env.SMTP_SECURE) === 'true'; // true for 465
+  const secure = String(process.env.SMTP_SECURE) === 'true'; // true usually for 465
   const auth = process.env.SMTP_USER
-    ? { user: process.env.SMTP_USER, pass:process.env.SMTP_PASS }
+    ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
     : undefined;
 
-  transporter = nodemailer.createTransport({ host, port, secure, auth });
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth,
+    // Make SMTP more robust in production:
+    pool: true,
+    maxConnections: 3,
+    maxMessages: 50,
+    connectionTimeout: 15000, // 15s
+    greetingTimeout: 10000,   // 10s
+    socketTimeout: 20000,     // 20s
+    tls: {
+      // STARTTLS; modern ciphers
+      ciphers: 'TLSv1.2',
+      // If your provider uses strict certs, leave rejectUnauthorized true (default).
+      // rejectUnauthorized: true,
+    },
+  });
 
-  // Optional: log resolved settings for debugging
-  console.log('SMTP createTransporter ->', { host, port, secure, hasAuth: !!auth });
+  console.log('SMTP createTransporter ->', {
+    host,
+    port,
+    secure,
+    hasAuth: !!auth,
+  });
+
   return transporter;
 }
 
 export async function verifyTransporter() {
-  const t = createTransporter();
   try {
+    const t = createTransporter();
     await t.verify();
     console.log('SMTP transporter verified');
     return true;
   } catch (err) {
-    console.error('SMTP verify failed:', err && err.message ? err.message : err);
-    return false;
+    console.error('SMTP verify failed:', err?.message || err);
+    return false; // do not throw — we don’t want to block server start
   }
 }
 
 export async function sendMail({ to, subject, text, html, from = process.env.SMTP_FROM }) {
   if (!to) throw new Error('sendMail: "to" is required');
   const t = createTransporter();
-  const info = await t.sendMail({ from, to, subject, text, html });
-  return info;
+  return t.sendMail({ from, to, subject, text, html });
 }
 
 export async function sendOtpEmail(to, otp, name = '') {

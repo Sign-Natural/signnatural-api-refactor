@@ -1,36 +1,51 @@
-// backend/scripts/test-smtp.mjs
-import dotenv from 'dotenv';
-dotenv.config();
-import { verifyTransporter, sendOtpEmail } from '../src/utils/email.js';
+// smtp-test.js
+import nodemailer from "nodemailer";
 
-(async () => {
-  console.log('ENV SMTP_HOST=', process.env.SMTP_HOST);
-  console.log('ENV SMTP_USER=', !!process.env.SMTP_USER);
-  const ok = await verifyTransporter();
-  console.log('verifyTransporter =>', ok);
+async function testSMTP() {
+  const host = process.env.SMTP_HOST || "smtp.gmail.com";
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const secure = String(process.env.SMTP_SECURE) === "true";
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
 
-  if (!ok) {
-    console.error('SMTP verify failed. Fix SMTP vars in .env and retry.');
-    process.exit(1);
-  }
+  console.log("Testing Gmail SMTP connection...\n");
 
-  // choose recipient: TEST_EMAIL (dev), fallback to SMTP_USER, fallback to parse SMTP_FROM
-  const recipient =
-    process.env.TEST_EMAIL ||
-    process.env.SMTP_USER ||
-    (process.env.SMTP_FROM && process.env.SMTP_FROM.match(/<([^>]+)>/)?.[1]);
-
-  if (!recipient) {
-    console.error('No recipient found. Set TEST_EMAIL or SMTP_USER or SMTP_FROM in .env');
-    process.exit(1);
-  }
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    tls: { ciphers: "TLSv1.2" },
+    logger: true,
+    debug: true,
+  });
 
   try {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const info = await sendOtpEmail(recipient, otp, 'Test User');
-    console.log('Sent test OTP. messageId:', info && info.messageId);
+    // Verify connection configuration
+    const success = await transporter.verify();
+    console.log("\n✅ SMTP Verified successfully!");
+    console.log(`Server: ${host}:${port} (secure=${secure})`);
+    console.log(`User: ${user}`);
+    return success;
   } catch (err) {
-    console.error('Send failed:', err && err.message ? err.message : err);
+    console.error("\n❌ SMTP Verification failed!");
+    console.error(err.message || err);
   }
-  process.exit(0);
-})();
+
+  // Optional: send a test email
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || `"Sign Natural" <${user}>`,
+      to: user, // send to yourself
+      subject: "SMTP Test from Sign Natural Backend",
+      text: "This is a test email sent from your Node.js backend using Gmail SMTP.",
+    });
+    console.log("✅ Test email sent!");
+    console.log(info);
+  } catch (err) {
+    console.error("❌ Failed to send test email:");
+    console.error(err.message || err);
+  }
+}
+
+testSMTP();

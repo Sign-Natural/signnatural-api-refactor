@@ -46,9 +46,15 @@ const registerUser = asyncHandler(async (req, res) => {
     emailVerified: false
   });
 
+try {
   await createAndSendOtp(user);
-
   res.status(201).json({ message: 'User registered. OTP sent to email.' });
+} catch (e) {
+  console.error('OTP email send failed after registration:', e?.message || e);
+  // user is created & OTP saved in DB;
+  // they can use /api/auth/resend-otp once SMTP is ok
+  res.status(201).json({ message: 'User registered. OTP could not be sent right now—use "Resend code".' });
+}
 });
 
 const verifyEmail = asyncHandler(async (req, res) => {
