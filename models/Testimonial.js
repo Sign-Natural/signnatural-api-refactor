@@ -8,6 +8,7 @@ const TestimonialSchema = new mongoose.Schema({
   imagePublicId: { type: String },  // cloudinary public_id for deletion
   approved: { type: Boolean, default: false },
   tag: { type: String },
+   rating: { type: Number, min: 1, max: 5, default: 5 }, // NEW
 }, { timestamps: true });
 
 export default mongoose.model('Testimonial', TestimonialSchema);

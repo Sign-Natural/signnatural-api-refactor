@@ -32,6 +32,7 @@ export const createTestimonial = asyncHandler(async (req, res) => {
     tag: tag || null,
     imageUrl,
     imagePublicId,
+    rating:rating ? Number(rating): undefined,
     approved: false, // admin must approve
   });
 
@@ -43,7 +44,11 @@ export const createTestimonial = asyncHandler(async (req, res) => {
  * Public - list approved testimonials
  */
 export const getApprovedTestimonials = asyncHandler(async (req, res) => {
-  const docs = await Testimonial.find({ approved: true }).sort({ createdAt: -1 }).limit(50);
+  const docs = await Testimonial
+    .find({ approved: true })
+    .populate('user', 'name') // NEW: bring the name along
+    .sort({ createdAt: -1 })
+    .limit(50);
   res.json(docs);
 });
 
