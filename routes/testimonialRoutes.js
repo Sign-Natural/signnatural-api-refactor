@@ -20,6 +20,7 @@ router.get('/approved', getApprovedTestimonials);
 
 // Protected: create testimonial (user)
 router.post('/', protect, upload.single('image'), validate(createTestimonialSchema), createTestimonial);
+router.get('/me', protect, getMyTestimonials);     // <-- add this route
 
 // Admin: pending list, approve, delete
 router.get('/pending', protect, requireAdmin, getPendingTestimonials);

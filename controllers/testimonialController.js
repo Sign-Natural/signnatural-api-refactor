@@ -101,3 +101,10 @@ export const deleteTestimonial = asyncHandler(async (req, res) => {
   await doc.remove();
   res.json({ message: 'Testimonial deleted' });
 });
+
+// GET /api/testimonials/me  (Protected)
+export const getMyTestimonials = asyncHandler(async (req, res) => {
+  const docs = await Testimonial.find({ user: req.user._id })
+    .sort({ createdAt: -1 });
+  res.json(docs);
+});
