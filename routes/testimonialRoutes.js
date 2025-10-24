@@ -6,6 +6,7 @@ import {
   getPendingTestimonials,
   approveTestimonial,
   deleteTestimonial,
+  getMyTestimonials
 } from '../controllers/testimonialController.js';
 
 import { protect, requireAdmin } from '../middlewares/authMiddleware.js';
