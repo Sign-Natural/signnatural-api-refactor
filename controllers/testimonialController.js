@@ -4,6 +4,7 @@ import asyncHandler from 'express-async-handler';
 import Testimonial from '../models/Testimonial.js';
 import { uploadBufferToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 import Notification from '../models/Notification.js';
+import { sendToUser } from '../utils/sseHub.js';
 
 /**
  * POST /api/testimonials
@@ -84,6 +85,14 @@ export const approveTestimonial = asyncHandler(async (req, res) => {
   message: 'Your story has been approved and is now visible on Success Stories.',
   link: '/stories',             // front-end route
   meta: { testimonialId: doc._id }
+});
+
+sendToUser(doc.user, {
+  kind: 'notification',
+  type: 'story_approved',
+  message: 'Your story has been approved!',
+  link: '/stories',
+  createdAt: new Date().toISOString(),
 });
   res.json(doc);
   
