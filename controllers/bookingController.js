@@ -3,7 +3,7 @@
 import asyncHandler from 'express-async-handler';
 import Booking from '../models/Booking.js';
 import Notification from '../models/Notification.js';
-import { sendToAdmins } from '../utils/sseHub.js';
+import { sendToAdmins,sendToUser } from '../utils/sseHub.js';
 
 const createBooking = asyncHandler(async (req, res) => {
   const { itemType, itemId, price, scheduledAt } = req.body;
@@ -82,6 +82,13 @@ sendToUser(booking.user, {
   type: 'booking_status',
   message: `Your booking status is now "${status}".`,
   link: '/user-dashboard?tab=bookings',
+  createdAt: new Date().toISOString(),
+});
+sendToAdmins({
+  kind: 'admin_board',
+  type: 'booking_updated',
+  entity: { id: booking._id, status },
+  message: 'Booking status updated',
   createdAt: new Date().toISOString(),
 });
   res.json(booking);

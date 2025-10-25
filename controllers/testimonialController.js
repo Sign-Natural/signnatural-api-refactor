@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import Testimonial from '../models/Testimonial.js';
 import { uploadBufferToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
 import Notification from '../models/Notification.js';
-import { sendToUser } from '../utils/sseHub.js';
+import { sendToUser ,sendToAdmins} from '../utils/sseHub.js';
 
 /**
  * POST /api/testimonials
@@ -37,6 +37,13 @@ export const createTestimonial = asyncHandler(async (req, res) => {
     rating:rating ? Number(rating): undefined,
     approved: false, // admin must approve
   });
+  sendToAdmins({
+  kind: 'admin_board',
+  type: 'testimonial_pending_created',
+  message: 'New story submitted and is pending approval.',
+  entity: { id: doc._id },
+  createdAt: new Date().toISOString(),
+});
 
   res.status(201).json(doc);
 });
@@ -86,6 +93,13 @@ export const approveTestimonial = asyncHandler(async (req, res) => {
   link: '/stories',             // front-end route
   meta: { testimonialId: doc._id }
 });
+sendToAdmins({
+  kind: 'admin_board',
+  type: 'testimonial_approved',
+  entity: { id: doc._id },
+  message: 'A story was approved.',
+  createdAt: new Date().toISOString(),
+});
 
 sendToUser(doc.user, {
   kind: 'notification',
@@ -121,6 +135,13 @@ export const deleteTestimonial = asyncHandler(async (req, res) => {
   }
 
   await doc.remove();
+  sendToAdmins({
+  kind: 'admin_board',
+  type: 'testimonial_deleted',
+  entity: { id: doc._id },
+  message: 'A story was deleted.',
+  createdAt: new Date().toISOString(),
+});
   res.json({ message: 'Testimonial deleted' });
 });
 
