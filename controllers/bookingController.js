@@ -2,6 +2,7 @@
 
 import asyncHandler from 'express-async-handler';
 import Booking from '../models/Booking.js';
+import Notification from '../models/Notification.js';
 
 const createBooking = asyncHandler(async (req, res) => {
   const { itemType, itemId, price, scheduledAt } = req.body;
@@ -15,8 +16,17 @@ const createBooking = asyncHandler(async (req, res) => {
     status: 'pending',
     payment: { paid: false, amount: price }
   });
-  res.status(201).json(booking);
+  await Notification.create({
+  audience: 'admin',
+  type: 'new_booking',
+  message: `New ${itemType.toLowerCase()} booking created.`,
+  link: '/admin-dashboard?tab=bookings',
+  meta: { bookingId: booking._id, itemType }
 });
+  res.status(201).json(booking);
+
+});
+
 
 const getMyBookings = asyncHandler(async (req, res) => {
   const bookings = await Booking.find({ user: req.user._id }).populate('item');
@@ -50,6 +60,14 @@ const updateBookingStatus = asyncHandler(async (req, res) => {
 
   booking.status = status;
   await booking.save(); // triggers hooks and returns updated doc
+  await Notification.create({
+  user: booking.user,
+  audience: 'user',
+  type: 'booking_status',
+  message: `Your booking status is now "${status}".`,
+  link: '/user-dashboard?tab=bookings',
+  meta: { bookingId: booking._id, status }
+});
   res.json(booking);
 });
 

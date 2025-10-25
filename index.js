@@ -18,6 +18,7 @@ import productRoutes from './routes/productRoutes.js';
 
 import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
 import { verifyTransporter } from './utils/email.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 const app = express();
 
@@ -71,6 +72,7 @@ app.use('/api/workshops', workshopRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/notifications', notificationRoutes)
 
 /** Health check */
 app.get('/api/health', (req, res) => {
